@@ -1,0 +1,164 @@
+* {
+	margin:0;
+	padding:0;
+	-moz-user-select: none; -webkit-user-select: none; -ms-user-select:none; user-select:none;
+	cursor: default;
+	box-sizing: border-box;
+}
+
+html, body {
+	width:100%;
+	height:100%;
+}
+
+body {
+	font-family: 'Open Sans', sans-serif;
+	background: #404040;
+	color: #fefefe;
+	display:flex;
+	flex-diection: row;
+	overflow: hidden;
+}
+
+#templates {
+	display: none;
+}
+
+section {
+	display:flex;
+	flex: 1 1 100%;
+	overflow: hidden;
+	position: relative;
+}
+
+#stagePanel {
+	align-items: center;
+	justify-content: center;
+
+}
+
+#stagePanel::after {
+	content: attr(data-w)'x'attr(data-h)' at 'attr(data-zoom)'%';
+	position: absolute;
+	display: block;
+	bottom: 0;
+	left:0;
+	font-size: 16px;
+	padding: 20px;
+}
+
+#fx-controls {
+	flex: 0 0 300px;
+	background: rgba(0,0,0,0.1);
+	box-shadow: inset -20px 0 10px -20px rgba(0, 0, 0, 0.5);
+	overflow-x: hidden;
+	overflow-y: scroll;
+	display: block;
+}
+
+.fx-main {
+	border: 1px solid rgba(0,0,0,0.3);
+	margin: 10px;
+}
+
+.fx-name {
+	padding: 0 10px;
+	background: rgba(0,0,0,0.1);
+	text-align: center;
+	font-weight: 300;
+	font-size:120%;
+	line-height:1.5em;
+}
+
+.fx-control-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid rgba(0,0,0,0.3);
+	width: 100%;
+	padding:  0 10px;
+	min-height: 40px;
+}
+
+.fx-control-label {
+	
+}
+
+.fx-control-section {
+	border: 1px solid rgba(0,0,0,0.3);
+	margin: 10px;
+}
+
+.fx-control-section .fx-control-section-title {
+	text-align: center;
+	padding: 0 10px;
+	font-size: 90%;
+	background: rgba(0,0,0,0.1);
+	line-height:1.5em;
+}
+
+.fx-control-section .fx-control-row:last-child {
+	border-bottom: none;
+}
+
+.pandaSectionTitle+.fx-control-row {
+	border-top: 1px solid rgba(0,0,0,0.3);
+}
+
+.fx-main > .fx-control-row:last-child {
+	border-bottom: none;
+}
+
+canvas {
+	display: block;
+}
+
+
+#stage {
+	width: 1280px;
+	height: 720px;
+	background: black;
+	flex: 0 0 auto;
+	margin: auto;
+}
+
+.pandaNumber {
+}
+
+.pandaNumber-input {
+	display:none;
+	text-align: right;
+	background: #9F9F9F;
+	border: 1px solid #060606;
+	outline: 1px solid #C49020;
+	margin: 0 -5px 0 0;
+	padding: 0 5px 0 0;
+	height: 20px;
+	-webkit-appearance: none;
+	appearance: none;
+	font-size: 100%;
+}
+
+.pandaNumber-scrubber {
+	cursor:ew-resize;
+	color: #C49020;
+	border-bottom: 2px dotted #C49020;
+	height: 20px;
+}
+
+.pandaNumber-scrubber:hover {
+	color: #F7D41C;
+}
+
+.pandaNumber-scrubber.active {
+	background: #C49020;
+	color: black;
+}
+
+.pandaNumber.keyInput .pandaNumber-scrubber {
+	display: none;
+}
+
+.pandaNumber.keyInput .pandaNumber-input {
+	display: block;
+}
