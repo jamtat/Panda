@@ -38,6 +38,9 @@ var $ = function(id) {
 		e.stopPropagation()
 		e.preventDefault()
 	},
+	timestamp = function() {
+		return new Date().getTime()
+	},
 	hexToRgb = function(hex) {
 		// Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
 		var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
@@ -81,6 +84,7 @@ app = {
 			this.ui.update()
 			this.fx.addToStage('solid')
 			this.fx.addToStage('gradient')
+			this.fx.addToStage('solid')
 		}.bind(this))
 	},
 	
@@ -146,7 +150,99 @@ app = {
 			var effectControlsContainer = this.template('fx-main', {name: effect.label || effect.name})
 			this.activeControls = []
 			effectControlsContainer.appendChild(this.recursiveControlRender(effect.controls, effect))
-			this.el.fxPanel.appendChild(effectControlsContainer)
+			effectControlsContainer.dataset.uid = effect.uid
+			var self = this
+			//Bind dragging
+			var header = effectControlsContainer.children[0],
+				startY = 0,
+				startTop = 0,
+				startIndex = -1,
+				thresholds = [],
+				downHandler = function(e) {
+					var w = effectControlsContainer.offsetWidth,
+						h = effectControlsContainer.offsetHeight,
+						rect = effectControlsContainer.getBoundingClientRect()
+					startIndex = app.stage.indexOfEffect(effect.uid)
+					startY = e.clientY
+					startTop = rect.top
+					stop(e)
+					console.log(w,h,rect, startIndex)
+					
+					//Get the thresholds
+					var c = this.el.fxPanel.children,
+						r
+					thresholds = []
+					for(var i = 0; i < c.length; i++) {
+						r = c[i].getBoundingClientRect()
+						thresholds.push(r.top + r.height)
+					}
+					
+					//Make the shadow box
+					var tempBox = document.createElement('div')
+					tempBox.className = 'fx-placeholder'
+					tempBox.style.height = h+'px'
+					this.el.fxPanel.insertBefore(tempBox, effectControlsContainer)
+					
+					//Style the current box
+					effectControlsContainer.classList.add('dragging')
+					effectControlsContainer.style.top = rect.top+'px'
+					effectControlsContainer.style.left = rect.left+'px'
+					effectControlsContainer.style.width = rect.width+'px'
+					effectControlsContainer.style.height = rect.height+'px'
+					
+					//Bind other handlers
+					document.addEventListener('mouseup', upHandler)
+					document.addEventListener('mousemove', moveHandler)
+					
+				}.bind(this),
+				moveHandler = function(e) {
+					stop(e)
+					var y = e.clientY,
+						dy = y - startTop
+					effectControlsContainer.style.top = startTop+dy+'px'
+				}.bind(this),
+				upHandler = function(e) {
+					stop(e)
+					var y = e.clientY,
+						ind = thresholds.length
+						
+					for(var i = 0; i < thresholds.length; i++) {
+						if(y < thresholds[i]) {
+							ind = i
+							break
+						}
+					}
+					
+					document.removeEventListener('mouseup', upHandler)
+					document.removeEventListener('mousemove', moveHandler)
+					
+					effectControlsContainer.classList.remove('dragging')
+					effectControlsContainer.style.top = ''
+					effectControlsContainer.style.left = ''
+					effectControlsContainer.style.width = ''
+					effectControlsContainer.style.height = ''
+					
+					this.el.fxPanel.removeChild(effectControlsContainer)
+					
+					this.el.fxPanel.removeChild(this.el.fxPanel.querySelector('.fx-placeholder'))
+					//Insert the element back into the right place
+					if(ind === thresholds.length) {
+						this.el.fxPanel.appendChild(effectControlsContainer)
+					} else {
+						this.el.fxPanel.insertBefore(effectControlsContainer, this.el.fxPanel.children[ind])
+					}
+					
+					//Insert the effect back into the right place in the array
+					/* FIX THIS */
+					var newIndex = thresholds.length-1-ind
+					console.log(app.stage.fx, startIndex, newIndex)
+					app.stage.fx.splice(newIndex,0,app.stage.fx.splice(startIndex)[0])
+					app.stage.render()
+					
+				}.bind(this)
+			header.addEventListener('mousedown', downHandler)
+
+			this.el.fxPanel.insertBefore(effectControlsContainer, this.el.fxPanel.firstChild)
 			effect.setupDone()
 		},
 		
@@ -269,7 +365,17 @@ app = {
 				this.render(i)
 			}
 		},
-		fx: []
+		fx: [],
+		indexOfEffect: function(uid) {
+			var i = 0,
+				l = this.fx.length
+			for(i;i<l;i++) {
+				if(this.fx[i].uid === uid) {
+					return i
+				}
+			}
+			return -1
+		} 
 	},
 	
 	fx: {
@@ -315,6 +421,7 @@ app = {
 
 			var e = new effect()
 			e.name = name
+			e.uid = timestamp()
 			e.label = rawEffect.label || name
 			e.controls = rawEffect.controls
 			e.ctx = ctx

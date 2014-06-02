@@ -59,6 +59,22 @@ section {
 .fx-main {
 	border: 1px solid rgba(0,0,0,0.3);
 	margin: 10px;
+	position: relative;
+	opacity: 1;
+	background: #393939;
+}
+
+.fx-main.dragging {
+	position: absolute;
+	opacity: 0.8;
+	margin:0;
+	z-index: 100;
+}
+
+.fx-placeholder {
+	border: 2px dotted rgba(0,0,0,0.3);
+	margin: 10px;
+	border-radius: 10px;
 }
 
 .fx-name {
@@ -68,6 +84,11 @@ section {
 	font-weight: 300;
 	font-size:120%;
 	line-height:1.5em;
+}
+
+.fx-name:active {
+	background: rgba(0,0,0,0.3);
+	cursor: ns-resize;
 }
 
 .fx-control-row {
